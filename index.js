@@ -13,9 +13,14 @@ var showMoviesOptions = function () {
         }
 
         if (/\d{1,}/g.test(option)) {
-            legendasTv.onSynopsisReady(option, function (movie) {
-                help.showMovieDetails(movie);
-            });
+            try {
+                legendasTv.onSynopsisReady(option, function (movie) {
+                    help.showMovieDetails(movie);
+                });
+            } catch (error) {
+                console.log(error.message);
+            }
+
             return;
         }
 
@@ -39,9 +44,6 @@ var showGlobalOptions = function () {
                     help.showMovies(movies.bluRay());
                     showMoviesOptions();
                 });
-                break;
-            case 'h':
-                help.showGlobalOptions();
                 break;
             case 'q':
                 process.exit();

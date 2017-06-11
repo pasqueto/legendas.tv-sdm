@@ -1,6 +1,7 @@
 var request = require('request');
+var error = require('./error'); 
 
-var legendasTv = function () {
+var LegendasTv = function () {
 
     var _url = 'http://legendas.tv';
     var _movies = [];
@@ -24,9 +25,12 @@ var legendasTv = function () {
     };
 
     _movies.get = function (id) {
-        return this.filter(function (movie) {
+        var movie = this.filter(function (movie) {
             return movie.id == id;
         })[0];
+
+        if (!movie) throw new error.MovieNotFound();
+        return movie;
     }
 
     var _stripTags = function (string) {
@@ -34,7 +38,7 @@ var legendasTv = function () {
     }
 
     var _fetchWeeklyHighlights = function (rawBody) {
-        var regex = /<div class="item"><a href=(?:"|')([^"']*)".*?<span>([^<>]*)<\/span>.*?<div class="tooltip">(?:<p>([^<>]*)<\/p>)(?:<p>([^<>]*)<\/p>){2}/g;
+        var regex = /<div class="item"><a href=(?:["'])([^"']*)".*?<span>([^<>]*)<\/span>.*?<div class="tooltip">(?:<p>([^<>]*)<\/p>)(?:<p>([^<>]*)<\/p>){2}/g;
         var m;
 
         while ((m = regex.exec(rawBody)) !== null)  {
@@ -43,26 +47,48 @@ var legendasTv = function () {
         }
     };
 
+    var _getImdbRate = function (url, callback) {
+        if (!url) return callback(null);
+
+        request(url, function (error, response, body) {
+            if (error) throw error;
+
+            var regex = /<span itemprop="ratingValue">([^>]+)<\/span>/g;
+            callback(regex.exec(body)[1]);
+        });
+    };
+
     var _fetchSynopsis = function (id, callback) {
         var movie = _movies.get(id);
-
+        
         if (movie.synopsis) return callback(movie);
 
         request(_url + movie.href, function (error, response, body) {
             if (error) throw error;
             
-            var regex = /<div class="t1"[^>]*>\s{1,}<p>((?:.|\s)*?)<\/p>/g;
+            var regex = /<div class="t1"[^>]*>\s*<p>((?:.|\s)*?)<\/p>/g;
             var synopsis = _stripTags(regex.exec(body)[1]);
-            
-            for (var i in _movies) {
-                if (_movies[i].id == id) {
-                    _movies[i].synopsis = synopsis;
-                    movie = _movies[i];
-                    break;
-                }
+
+            var urlImdb, m;
+            regex = /<a[^>]*href=["'](http:\/\/(?:www\.)imdb\.com\/title\/[^"']+)/;
+
+            if (m = regex.exec(body)) {
+                urlImdb = m[1];
             }
+
+            _getImdbRate(urlImdb, function (rate) {
+                
+                for (var i in _movies) {
+                    if (_movies[i].id == id) {
+                        _movies[i].synopsis = synopsis;
+                        _movies[i].rate = rate
+                        movie = _movies[i];
+                        break;
+                    }
+                }
             
-            callback(movie);
+                callback(movie);
+            });
         });
     };
 
@@ -84,4 +110,4 @@ var legendasTv = function () {
     };
 };
 
-module.exports = new legendasTv();
+module.exports = new LegendasTv();
