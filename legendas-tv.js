@@ -29,6 +29,10 @@ var legendasTv = function () {
         })[0];
     }
 
+    var _stripTags = function (string) {
+        return string.replace(/<.*?>/g, '');
+    }
+
     var _fetchWeeklyHighlights = function (rawBody) {
         var regex = /<div class="item"><a href=(?:"|')([^"']*)".*?<span>([^<>]*)<\/span>.*?<div class="tooltip">(?:<p>([^<>]*)<\/p>)(?:<p>([^<>]*)<\/p>){2}/g;
         var m;
@@ -46,18 +50,18 @@ var legendasTv = function () {
 
         request(_url + movie.href, function (error, response, body) {
             if (error) throw error;
-
-            var regex = /<div class="t1"[^>]*>\s{0,}<p>([^<]+)<\/p>/g;
-            var synopsis = regex.exec(body)[1];
+            
+            var regex = /<div class="t1"[^>]*>\s{1,}<p>((?:.|\s)*?)<\/p>/g;
+            var synopsis = _stripTags(regex.exec(body)[1]);
             
             for (var i in _movies) {
-                if (_movies[i].id === id) {
+                if (_movies[i].id == id) {
                     _movies[i].synopsis = synopsis;
                     movie = _movies[i];
                     break;
                 }
             }
-
+            
             callback(movie);
         });
     };
