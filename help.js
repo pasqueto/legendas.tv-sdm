@@ -1,11 +1,13 @@
+var legendasTv = require('./legendas-tv');
+
 exports.showSystemHeader = function () {
     console.log('\nLEGENDAS.TV - Destaques da semana');
-    console.log('---------------------------------\n');
+    console.log('---------------------------------');
 };
 
 exports.showGlobalOptions = function () {
     [
-    'a) Show all releases;',
+    '\na) Show all releases;',
     'b) Show only blu-ray quality releases;',
     'h) Help;',
     'q) Quit;'
@@ -15,14 +17,23 @@ exports.showGlobalOptions = function () {
 };
 
 exports.showMovies = function (movies) {
+    process.stdout.write('\n');
+
     movies.forEach(function (movie) {
-        console.log('# ' + ('0' + movie.id).slice(-2) + ' - ' + movie.name);
+        console.log('# ' + ('0' + movie.id).slice(-2) + ': ' + movie.name);
     });
+
+    console.log('\nFetched at ' + legendasTv.fetchDate().toString());
+};
+
+exports.showMovieOptions = function () {
+    console.log('\nd) Download subtitle;');
+    console.log('b) Back;')
 };
 
 exports.showMoviesOptions = function () {
+    console.log('\n#) Select movie;');
     console.log('b) Back;')
-    console.log('#) Select movie;');
 };
 
 exports.showMovieDetails = function (movie) {
@@ -32,5 +43,5 @@ exports.showMovieDetails = function (movie) {
     console.log('\nrelease: ' + movie.release);
     console.log('date: ' + movie.date);
     console.log('rate: ' + movie.rate);
-}
+};
 
