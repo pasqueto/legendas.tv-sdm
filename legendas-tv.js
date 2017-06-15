@@ -77,8 +77,8 @@ var LegendasTv = function () {
     var _fetchSynopsis = function (movie, callback) {
         if (movie.synopsis) return callback(movie);
 
-        legendasTvRequest(movie.href, function (error, response, body) {
-            if (error) throw error;
+        legendasTvRequest(movie.href, function (err, response, body) {
+            if (err) throw err;
             
             var regex = /<div class="t1"[^>]*>\s*<p>((?:.|\s)*?)<\/p>/g;
             var synopsis = _stripTags(regex.exec(body)[1]);
@@ -124,8 +124,8 @@ var LegendasTv = function () {
     var _getImdbRate = function (url, callback) {
         if ( ! url) return callback(null);
 
-        request(url, function (error, response, body) {
-            if (error) throw error;
+        request(url, function (err, response, body) {
+            if (err) throw err;
 
             var regex = /<span itemprop="ratingValue">([^>]+)<\/span>/g;
             callback(regex.exec(body)[1]);
@@ -137,14 +137,19 @@ var LegendasTv = function () {
             var filename = movie.filename() + '.rar';
 
             legendasTvRequest(movie.download)
-            .on('response', function () {
+            .on(error, function (err) {
+                throw err;
+            })
+            .on('response', function (response) {
                 callback(filename);
                 
             }).pipe(fs.createWriteStream('subtitles/' + filename));
         };
 
         if ( ! movie.download) {
-            legendasTvRequest(movie.href, function (error, response, body) {
+            legendasTvRequest(movie.href, function (err, response, body) {
+                if (err) throw err;
+                
                 _fetchDownloadLink(movie, body);
                 download(movie.download);
             });
@@ -156,8 +161,8 @@ var LegendasTv = function () {
     this.onReady = function (callback) {
         if (_movies.length) return callback(_movies);
 
-        legendasTvRequest('/', function (error, response, body) {
-            if (error) throw error;
+        legendasTvRequest('/', function (err, response, body) {
+            if (err) throw err;
 
             _fetchWeeklyHighlights(body);
             callback(_movies);
