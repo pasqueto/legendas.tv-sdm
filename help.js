@@ -20,7 +20,7 @@ exports.showMovies = function (movies) {
   process.stdout.write('\n');
 
   movies.forEach(function (movie) {
-    console.log('# ' + ('0' + movie.id).slice(-2) + ': ' + movie.name);
+    console.log('# ' + ('0' + movie.id).slice(-2) + ': ' + movie.title);
   });
 
   console.log('\nFetched at ' + legendasTv.fetchDate().toString());
@@ -37,8 +37,8 @@ exports.showMoviesOptions = function () {
 };
 
 exports.showMovieDetails = function (movie) {
-  console.log('\n' + movie.name);
-  console.log(new Array(movie.name.length + 1).join('-'));
+  console.log('\n' + movie.title);
+  console.log(new Array(movie.title.length + 1).join('-'));
   console.log('\n' + movie.synopsis);
   console.log('\nrelease: ' + movie.release);
   console.log('date: ' + movie.date);

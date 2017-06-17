@@ -12,15 +12,19 @@ var LegendasTv = function () {
   var Movie = (function () {
     var id = 0;
 
-    return function (name, release, date, href) {
+    return function (title, release, date, href, episode) {
       this.id = ++id;
-      this.name = name;
+      this.title = title;
       this.release = release;
       this.date = date;
       this.href = href;
+      if (episode) this.episode = episode;
       this.filename = function () {
-        return this.name.replace(/\s/g, '_').toLowerCase();
-      }
+        var ep = '';
+        if (this.episode) ep = '-' + this.episode;
+
+        return this.title.replace(/\s/g, '_').toLowerCase() + ep.toLowerCase();
+      };
     };
   })();
 
@@ -45,17 +49,34 @@ var LegendasTv = function () {
     return movie;
   }
 
+  _movies.find = function (title, episode) {
+    return _movies.filter(function (movie) {
+      if (title.trim().toLowerCase() === movie.title.toLowerCase()) {
+        
+        if (movie.episode) movie.episode = movie.episode.toLowerCase();
+        if (episode) {
+          episode = episode.trim().toLowerCase();
+          return episode === movie.episode;
+        }
+
+        return true;
+      }
+
+      return false;
+    });
+  };
+
   var _stripTags = function (string) {
     return string.replace(/<.*?>/g, '');
   };
 
   var _fetchWeeklyHighlights = function (rawBody) {
-    var regex = /<div class="item"><a href=(?:["'])([^"']*)".*?<span>([^<>]*)<\/span>.*?<div class="tooltip">(?:<p>([^<>]*)<\/p>)(?:<p>([^<>]*)<\/p>){2}/g;
+    var regex = /<div class="item"><a href="([^"]*)"[^>]*>(?:<span class="selo_temp">([^<>]*)<\/span>)?.*?<span>([^<>]*)<\/span>.*?<div class="tooltip">(?:<p>([^<>]*)<\/p>)(?:<p>([^<>]*)<\/p>){2}/g;
     var m;
 
     while ((m = regex.exec(rawBody)) !== null) {
-      m = m.map(function (val) { return val.trim() });
-      _movies.push(new Movie(m[2], m[3], m[4], m[1]));
+      m = m.map(function (val) { return val ? val.trim() : val });
+      _movies.push(new Movie(m[3], m[4], m[5], m[1], m[2]));
     }
 
     regex = /<a[^>]*href="\/login"[^>]*>entrar<\/a>/gi;
@@ -177,7 +198,7 @@ var LegendasTv = function () {
     this.onReady(function () {
       var movie = _movies.get(id);
       if (!_isLoggedIn) {
-        console.log('\nlogin...');
+        console.log('(login) ...');
 
         _login(credential.username, credential.password, function () {
           _downloadSubtitle(movie, callback);
