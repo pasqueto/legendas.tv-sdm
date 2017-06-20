@@ -6,8 +6,8 @@ var credential = require('./credential');
 var LegendasTv = function () {
 
   var _movies = [];
+  var _isLoggedIn = false;
   var _fetchedAt;
-  var _isLoggedIn;
 
   var Movie = (function () {
     var id = 0;
@@ -52,7 +52,7 @@ var LegendasTv = function () {
   _movies.find = function (title, episode) {
     return _movies.filter(function (movie) {
       if (title.trim().toLowerCase() === movie.title.toLowerCase()) {
-        
+
         if (movie.episode) movie.episode = movie.episode.toLowerCase();
         if (episode) {
           episode = episode.trim().toLowerCase();
@@ -75,13 +75,32 @@ var LegendasTv = function () {
     var m;
 
     while ((m = regex.exec(rawBody)) !== null) {
-      m = m.map(function (val) { return val ? val.trim() : val });
+      m = m.map(function (val) { return val ? val.trim() : val; });
+      if (_movies.some(function (movie) { return movie.release === m[4]; })) continue;
+
       _movies.push(new Movie(m[3], m[4], m[5], m[1], m[2]));
     }
 
     regex = /<a[^>]*href="\/login"[^>]*>entrar<\/a>/gi;
 
-    _isLoggedIn = !regex.test(rawBody);
+    _fetchedAt = new Date();
+  };
+
+  var _fetchSearchResult = function (rawBody) {
+
+    var regex = /<div[^>]*>.*?<a href="(\/download\/[^\/]+\/([^\/]+)\/[^"]+)">(.*?)<\/a>.*?em\s(.*?)<\/p>/g;
+    var m;
+
+    while ((m = regex.exec(rawBody)) !== null) {
+      m = m.map(function (val) { return val.trim(); });
+      if (_movies.some(function (movie) { return movie.release === m[3]; })) continue;
+
+      var episode = /s\d{2}e\d{2}/gi.exec(m[3]);
+      if (episode) episode = episode[0];
+      
+      _movies.push(new Movie(m[2].replace('_', ' '), m[3], m[4], m[1], episode));
+    }
+
     _fetchedAt = new Date();
   };
 
@@ -177,9 +196,7 @@ var LegendasTv = function () {
     }
   };
 
-  this.onReady = function (callback) {
-    if (_movies.length) return callback(_movies);
-
+  this.onHighlightsReady = function (callback) {
     legendasTvRequest('/', function (err, response, body) {
       if (err) throw err;
 
@@ -188,25 +205,41 @@ var LegendasTv = function () {
     });
   };
 
-  this.onFetchSynopsis = function (id, callback) {
-    this.onReady(function () {
-      _fetchSynopsis(_movies.get(id), callback);
+  this.onSearchReady = function (search, page, callback) {
+    if (typeof arguments[1] === 'function') {
+      callback = arguments[1];
+      page = 0;
+    }
+
+    var pageUrl = '';
+    if (page) pageUrl = '/-/' + page + '/-';
+
+    var uri = 'legenda/busca/' + encodeURI(search) + '/1' + pageUrl;
+
+    legendasTvRequest(uri, function (err, response, body) {
+      if (err) throw err;
+
+      _fetchSearchResult(body);
+      callback(_movies);
     });
   };
 
-  this.onDownloadSubtitle = function (id, callback) {
-    this.onReady(function () {
-      var movie = _movies.get(id);
-      if (!_isLoggedIn) {
-        console.log('(login) ...');
+  this.onFetchSynopsis = function (id, callback) {
+    _fetchSynopsis(_movies.get(id), callback);
+  };
 
-        _login(credential.username, credential.password, function () {
-          _downloadSubtitle(movie, callback);
-        });
-      } else {
+  this.onDownloadSubtitle = function (id, callback) {
+    var movie = _movies.get(id);
+
+    if (!_isLoggedIn) {
+      console.log('(login) ...');
+
+      _login(credential.username, credential.password, function () {
         _downloadSubtitle(movie, callback);
-      }
-    });
+      });
+    } else {
+      _downloadSubtitle(movie, callback);
+    }
   };
 
   this.isLoggedIn = function () {

@@ -55,13 +55,13 @@ var showGlobalOptions = function () {
   menuHandler = function (option) {
     switch (option) {
       case 'a':
-        legendasTv.onReady(function (movies) {
+        legendasTv.onHighlightsReady(function (movies) {
           help.showMovies(movies);
           showMoviesOptions();
         });
         break;
       case 'b':
-        legendasTv.onReady(function (movies) {
+        legendasTv.onHighlightsReady(function (movies) {
           help.showMovies(movies.bluRay());
           showMoviesOptions();
         });
