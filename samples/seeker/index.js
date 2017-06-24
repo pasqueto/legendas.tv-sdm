@@ -29,14 +29,14 @@ var seekSeries = function () {
 
     });
 
-    if (!episodeFound) return;
+    if (episodeFound === undefined) return;
     serie.episodes.splice(0, ++episodeFound);
   });
 
   fs.writeFile('config.json', JSON.stringify(config));
 }
 
-legendasTv.onReady(function (movies) {  
+legendasTv.onHighlightsReady(function (movies) {  
   _movies = movies;
   seekSeries();
 });
