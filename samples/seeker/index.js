@@ -1,13 +1,12 @@
 var fs = require('fs');
 var config = require('./config');
-var legendasTv = require('./legendas-tv');
-var error = require('./error');
+var legendasTv = require('../../../legendas-tv');
 
 var _today = new Date();
 var _movies = [];
 
 var downloadSubtitle = function (movie) {
-  if (!movie) throw new error.MovieNotFound();
+  if (!movie) throw new Error('Movie not found.')
 
   legendasTv.onDownloadSubtitle(movie.id, function (filename) {
     console.log(filename + ' downloaded');
@@ -15,7 +14,7 @@ var downloadSubtitle = function (movie) {
 };
 
 var seekSeries = function () {
-  config.seeker.series.forEach(function (serie, i) {
+  config.series.forEach(function (serie, i) {
     if (_today < new Date(serie.releaseDate)) return;
     
     var episodeFound;

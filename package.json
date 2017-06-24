@@ -1,0 +1,26 @@
+{
+  "name": "legendas-tv",
+  "version": "1.0.0",
+  "description": "A simple way to discover the highlights subtitles of the week from legendas.tv",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pasqueto/legendas.tv-sdm.git"
+  },
+  "keywords": [
+    "legendas.tv",
+    "legendas"
+  ],
+  "author": "Renan Pasqueto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pasqueto/legendas.tv-sdm/issues"
+  },
+  "homepage": "https://github.com/pasqueto/legendas.tv-sdm#readme",
+  "dependencies": {
+    "request": "^2.81.0"
+  }
+}
