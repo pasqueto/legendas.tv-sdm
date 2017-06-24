@@ -4,24 +4,24 @@ var help = require('./help');
 var menuHandler,
   optionGlobalChosen;
 
-var backToMovies = function () {
-  if (optionGlobalChosen === 'a') {
-    legendasTv.onHighlightsReady(function (movies) {
-      help.showMovies(movies, legendasTv.fetchDate().toString());
-      showMoviesOptions();
-    });
-  }
-
-  if (optionGlobalChosen === 'b') {
-    legendasTv.onHighlightsReady(function (movies) {
-      help.showMovies(movies.bluRay(), legendasTv.fetchDate().toString());
-      showMoviesOptions();
-    });
-  }
-}
-
 var showMovieOptions = function (idMovie) {
   help.showMovieOptions();
+
+  var backToMovies = function () {
+    if (optionGlobalChosen === 'a') {
+      legendasTv.onHighlightsReady(function (movies) {
+        help.showMovies(movies, legendasTv.fetchDate().toString());
+        showMoviesOptions();
+      });
+    }
+
+    if (optionGlobalChosen === 'b') {
+      legendasTv.onHighlightsReady(function (movies) {
+        help.showMovies(movies.bluRay(), legendasTv.fetchDate().toString());
+        showMoviesOptions();
+      });
+    }
+  };
 
   menuHandler = function (option) {
     switch (option) {
