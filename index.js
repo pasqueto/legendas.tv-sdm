@@ -23,7 +23,9 @@ var LegendasTv = function () {
         var ep = '';
         if (this.episode) ep = '-' + this.episode;
 
-        return this.title.replace(/\s/g, '_').toLowerCase() + ep.toLowerCase();
+        return this.title
+          .replace(/[\s:\\\/?*"<>|]/g, '_')
+          .toLowerCase() + ep.toLowerCase();
       };
     };
   })();
