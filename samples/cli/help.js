@@ -6,7 +6,8 @@ exports.showSystemHeader = function () {
 exports.showGlobalOptions = function () {
   [
     '\na) Show all releases;',
-    'b) Show only blu-ray quality releases;',    
+    'b) Show only blu-ray quality releases;',
+    's) Search release;',
     'q) Quit;'
   ].forEach(function (option) {
     console.log(option);
@@ -18,6 +19,17 @@ exports.showMovies = function (movies, date) {
 
   movies.forEach(function (movie) {
     console.log('# ' + ('0' + movie.id).slice(-2) + ': ' + movie.title);
+  });
+
+  if (date) console.log('\nFetched at ' + date);
+};
+
+exports.showMoviesWithInfo = function (movies, date) {
+
+  movies.forEach(function (movie) {
+    console.log('\n# ' + ('0' + movie.id).slice(-2) + ': ' + movie.title);
+    console.log('Release: ' + movie.release);
+    console.log('Date: ' + movie.date);
   });
 
   if (date) console.log('\nFetched at ' + date);

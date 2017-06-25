@@ -99,7 +99,7 @@ var LegendasTv = function () {
 
       var episode = /s\d{2}e\d{2}/gi.exec(m[3]);
       if (episode) episode = episode[0];
-      
+
       _movies.push(new Movie(m[2].replace('_', ' '), m[3], m[4], m[1], episode));
     }
 
@@ -250,6 +250,13 @@ var LegendasTv = function () {
 
   this.fetchDate = function () {
     return _fetchedAt;
+  };
+
+  this.clean = function () {
+    _movies.splice(0, _movies.length);
+    _fetchedAt = null;
+
+    return this;
   };
 };
 
