@@ -1,26 +1,23 @@
 var legendasTv = require('../../../legendas-tv');
 var help = require('./help');
 
-var menuHandler,
-  optionGlobalChosen;
+var menuHandler;
+var _globalOptionChosen;
+var _movies = [];
 
 var showMovieOptions = function (idMovie) {
   help.showMovieOptions();
 
   var backToMovies = function () {
-    if (optionGlobalChosen === 'a') {
-      legendasTv.onHighlightsReady(function (movies) {
-        help.showMovies(movies, legendasTv.fetchDate().toString());
-        showMoviesOptions();
-      });
+    if (_globalOptionChosen === 'a') {
+      help.showMovies(_movies, legendasTv.fetchDate().toString());
     }
 
-    if (optionGlobalChosen === 'b') {
-      legendasTv.onHighlightsReady(function (movies) {
-        help.showMovies(movies.bluRay(), legendasTv.fetchDate().toString());
-        showMoviesOptions();
-      });
+    if (_globalOptionChosen === 'b') {
+      help.showMovies(_movies.bluRay(), legendasTv.fetchDate().toString());
     }
+
+    showMoviesOptions();
   };
 
   menuHandler = function (option) {
@@ -41,6 +38,7 @@ var showMovieOptions = function (idMovie) {
 };
 
 var showMoviesOptions = function () {
+
   help.showMoviesOptions();
 
   menuHandler = function (option) {
@@ -70,18 +68,20 @@ var showGlobalOptions = function () {
   help.showGlobalOptions();
 
   menuHandler = function (option) {
-    optionGlobalChosen = option;
+    _globalOptionChosen = option;
 
     switch (option) {
       case 'a':
         legendasTv.onHighlightsReady(function (movies) {
           help.showMovies(movies, legendasTv.fetchDate().toString());
+          _movies = movies;
           showMoviesOptions();
         });
         break;
       case 'b':
         legendasTv.onHighlightsReady(function (movies) {
-          help.showMovies(movies.bluRay(), legendasTv.fetchDate().toString());
+          help.showMovies(_movies.bluRay(), legendasTv.fetchDate().toString());
+          _movies = movies;
           showMoviesOptions();
         });
         break;
