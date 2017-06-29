@@ -9,7 +9,7 @@ exports.showGlobalOptions = function () {
     'b) Show only blu-ray quality releases;',
     's) Search release;',
     'q) Quit;'
-  ].forEach(function (option) {
+  ].forEach((option) => {
     console.log(option);
   });
 };
@@ -17,22 +17,22 @@ exports.showGlobalOptions = function () {
 exports.showMovies = function (movies, date) {
   process.stdout.write('\n');
 
-  movies.forEach(function (movie) {
-    console.log('# ' + ('0' + movie.id).slice(-2) + ': ' + movie.title);
+  movies.forEach((movie, i) => {
+    console.log('# ' + ('0' + i).slice(-2) + ': ' + movie.title);
   });
 
-  if (date) console.log('\nFetched at ' + date);
+  if (date) console.log('\nFetched at ' + date.toString());
 };
 
 exports.showMoviesWithInfo = function (movies, date) {
 
-  movies.forEach(function (movie) {
-    console.log('\n# ' + ('0' + movie.id).slice(-2) + ': ' + movie.title);
+  movies.forEach((movie, i) => {
+    console.log('\n# ' + ('0' + i).slice(-2) + ': ' + movie.title);
     console.log('Release: ' + movie.release);
     console.log('Date: ' + movie.date);
   });
 
-  if (date) console.log('\nFetched at ' + date);
+  if (date) console.log('\nFetched at ' + date.toString());
 };
 
 exports.showMovieOptions = function () {

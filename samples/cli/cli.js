@@ -5,20 +5,15 @@ var menuHandler;
 var _globalOptionChosen;
 var _movies = [];
 
-var showMovieOptions = function (idMovie) {
+var showMovieOptions = function (index) {
   help.showMovieOptions();
 
   var backToMovies = function () {
-    if (_globalOptionChosen === 'a') {
-      help.showMovies(_movies, legendasTv.fetchDate().toString());
-    }
-
-    if (_globalOptionChosen === 'b') {
-      help.showMovies(_movies.bluRay(), legendasTv.fetchDate().toString());
-    }
 
     if (_globalOptionChosen === 's') {
       help.showMoviesWithInfo(_movies);
+    } else {
+      help.showMovies(_movies, legendasTv.fetchDate());
     }
 
     showMoviesOptions();
@@ -30,19 +25,19 @@ var showMovieOptions = function (idMovie) {
         backToMovies();
         break;
       case 'd':
-        legendasTv.onDownloadSubtitle(idMovie, function (filename) {
-          console.log('\n' + filename + ' downloaded');
-          backToMovies();
-        });
+        legendasTv.onDownloadSubtitle(_movies[index].id)
+          .then(filename => {
+            console.log('\n' + filename + ' downloaded');
+            backToMovies();
+          });
         break;
       default:
-        showMovieOptions(idMovie);
+        showMovieOptions(index);
     }
   };
 };
 
 var showMoviesOptions = function () {
-
   help.showMoviesOptions();
 
   menuHandler = function (option) {
@@ -53,10 +48,11 @@ var showMoviesOptions = function () {
 
     if (/\d{1,}/g.test(option)) {
       try {
-        legendasTv.onFetchSynopsis(option, function (movie) {
-          help.showMovieDetails(movie);
-          showMovieOptions(option);
-        });
+        legendasTv.onFetchSynopsis(_movies[option].id)
+          .then(movie => {
+            help.showMovieDetails(movie);
+            showMovieOptions(option);
+          });
       } catch (error) {
         console.log(error.message);
       }
@@ -77,11 +73,12 @@ var showSearchOptions = function () {
       return;
     }
 
-    legendasTv.onSearchReady(search, function (movies) {
-      help.showMoviesWithInfo(movies);
-      _movies = movies;
-      showMoviesOptions();
-    });
+    legendasTv.clean().onSearchReady(search)
+      .then(movies => {
+        help.showMoviesWithInfo(movies);
+        _movies = movies;
+        showMoviesOptions();
+      });
   };
 };
 
@@ -93,18 +90,20 @@ var showGlobalOptions = function () {
 
     switch (option) {
       case 'a':
-        legendasTv.clean().onHighlightsReady(function (movies) {
-          help.showMovies(movies, legendasTv.fetchDate().toString());
-          _movies = movies;
-          showMoviesOptions();
-        });
+        legendasTv.clean().onHighlightsReady()
+          .then(movies => {
+            help.showMovies(movies, legendasTv.fetchDate());
+            _movies = movies;
+            showMoviesOptions();
+          });
         break;
       case 'b':
-        legendasTv.clean().onHighlightsReady(function (movies) {
-          help.showMovies(movies.bluRay(), legendasTv.fetchDate().toString());
-          _movies = movies;
-          showMoviesOptions();
-        });
+        legendasTv.clean().onHighlightsReady()
+          .then(movies => {
+            help.showMovies(movies.bluRay(), legendasTv.fetchDate());
+            _movies = movies.bluRay();
+            showMoviesOptions();
+          });
         break;
       case 's':
         showSearchOptions();
@@ -122,7 +121,7 @@ var showGlobalOptions = function () {
   help.showSystemHeader();
   showGlobalOptions();
 
-  process.stdin.on('readable', function () {
+  process.stdin.on('readable', () => {
     var chunk = process.stdin.read();
     if (chunk) menuHandler(chunk.toString().replace(/[\r\n]+/, ''));
   });

@@ -8,18 +8,19 @@ var _movies = [];
 var downloadSubtitle = function (movie) {
   if (!movie) throw new Error('Movie not found.')
 
-  legendasTv.onDownloadSubtitle(movie.id, function (filename) {
-    console.log(filename + ' downloaded');
-  });
+  legendasTv.onDownloadSubtitle(movie.id)
+    .then(filename => {
+      console.log(filename + ' downloaded');
+    })
 };
 
 var seekSeries = function () {
-  config.series.forEach(function (serie, i) {
+  config.series.forEach((serie, i) => {
     if (_today < new Date(serie.releaseDate)) return;
-    
+
     var episodeFound;
-    serie.episodes.forEach(function (episode, j) {
-      
+    serie.episodes.forEach((episode, j) => {
+
       try {
         downloadSubtitle(_movies.find(serie.title, episode)[0]);
         episodeFound = j;
@@ -36,8 +37,9 @@ var seekSeries = function () {
   fs.writeFile('config.json', JSON.stringify(config));
 }
 
-legendasTv.onHighlightsReady(function (movies) {  
-  _movies = movies;
-  seekSeries();
-});
+legendasTv.onHighlightsReady()
+  .then(movies => {
+    _movies = movies;
+    seekSeries();
+  });
 
