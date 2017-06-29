@@ -199,15 +199,15 @@ var LegendasTv = function () {
     return new Promise((resolve, reject) => {
       if (!_isLoggedIn) {
         _login(credential.username, credential.password)
-          .then(() => { return fetchLink(); })
-          .then(() => { return download(); })
-          .then(filename => { resolve(filename); })
-          .catch(err => { reject(err); });
+          .then(fetchLink)
+          .then(download)
+          .then(resolve)
+          .catch(reject);
       } else {
         fetchLink()
-          .then(() => { return download(); })
-          .then(filename => { resolve(filename); })
-          .catch(err => { reject(err); });
+          .then(download)
+          .then(resolve)
+          .catch(reject);
       }
     });
   };

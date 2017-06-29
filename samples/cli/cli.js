@@ -28,8 +28,8 @@ var showMovieOptions = function (index) {
         legendasTv.onDownloadSubtitle(_movies[index].id)
           .then(filename => {
             console.log('\n' + filename + ' downloaded');
-            backToMovies();
-          });
+          })
+          .then(backToMovies);
         break;
       default:
         showMovieOptions(index);
@@ -49,10 +49,8 @@ var showMoviesOptions = function () {
     if (/\d{1,}/g.test(option)) {
       try {
         legendasTv.onFetchSynopsis(_movies[option].id)
-          .then(movie => {
-            help.showMovieDetails(movie);
-            showMovieOptions(option);
-          });
+          .then(help.showMovieDetails)
+          .then(() => { showMovieOptions(option) });
       } catch (error) {
         console.log(error.message);
       }
@@ -77,8 +75,8 @@ var showSearchOptions = function () {
       .then(movies => {
         help.showMoviesWithInfo(movies);
         _movies = movies;
-        showMoviesOptions();
-      });
+      })
+      .then(showMoviesOptions);
   };
 };
 
@@ -94,16 +92,16 @@ var showGlobalOptions = function () {
           .then(movies => {
             help.showMovies(movies, legendasTv.fetchDate());
             _movies = movies;
-            showMoviesOptions();
-          });
+          })
+          .then(showMoviesOptions);
         break;
       case 'b':
         legendasTv.clean().onHighlightsReady()
           .then(movies => {
             help.showMovies(movies.bluRay(), legendasTv.fetchDate());
             _movies = movies.bluRay();
-            showMoviesOptions();
-          });
+          })
+          .then(showMoviesOptions);
         break;
       case 's':
         showSearchOptions();
